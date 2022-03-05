@@ -1,4 +1,6 @@
 import {extend} from '../shared'
+let activeEffect; //activeEffect记录当前函数执行状态，实例对象调用run()的时候会被设置为当前方法
+let shouldTrack;//如果调用了stop(),shouldTrack =false
 class ReactiveEffect {
     private _fn: any
     deps = []
@@ -8,8 +10,15 @@ class ReactiveEffect {
         this._fn = fn
     }
     run() {
+        // active为true,代表没执行stop
+        if(!this.active){
+            return this._fn()
+        }
+        shouldTrack = true
         activeEffect = this
-        return this._fn()
+        const result = this._fn()
+        shouldTrack = false
+        return result
     }
     stop() {
         //dep是set结构
@@ -30,6 +39,8 @@ function clearEffect(effect) {
 }
 const targetMap = new Map()
 export function track(target, key) {
+    if (!activeEffect) return
+    if(!shouldTrack) return
     // 使用Set数据结构，防止重复传入相同的执行函数
     let depsMap = targetMap.get(target)
     if (!depsMap) {
@@ -41,8 +52,8 @@ export function track(target, key) {
         dep = new Set()
         depsMap.set(key, dep)
     }
-    if (!activeEffect) return
     // 将执行函数添加到dep
+    if(dep.has(activeEffect)) return
     dep.add(activeEffect)
     activeEffect.deps.push(dep)
 } 
@@ -57,7 +68,7 @@ export function trigger(target, key) {
         }
     }
 }
-let activeEffect; //activeEffect记录当前函数执行状态，实例对象调用run()的时候会被设置为当前方法
+
 export function effect(fn, options: any = {}) {
     // 收集用户传过来的执行函数，交给实例对象
     const _effect = new ReactiveEffect(fn, options.scheduler)
@@ -72,4 +83,5 @@ export function effect(fn, options: any = {}) {
 }
 export function stop(runner) {
     runner.effect.stop()
+    shouldTrack = false
 }

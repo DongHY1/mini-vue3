@@ -56,7 +56,7 @@ describe("effect", () => {
     obj.prop = 2
     expect(dummy).toBe(2)
     stop(runner)
-    obj.prop = 3
+    obj.prop++
     expect(dummy).toBe(2)
 
     // stopped effect should still be manually callable
@@ -64,6 +64,7 @@ describe("effect", () => {
     expect(dummy).toBe(3)
   })
   it('onStop', () => {
+    // 用户调用stop之后，onstop这个函数会被执行
     const onStop = jest.fn()
     const runner = effect(() => { }, {
       onStop
