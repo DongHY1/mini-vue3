@@ -30,6 +30,7 @@ function clearEffect(effect) {
 }
 const targetMap = new Map()
 export function track(target, key) {
+    // 使用Set数据结构，防止重复传入相同的执行函数
     let depsMap = targetMap.get(target)
     if (!depsMap) {
         depsMap = new Map()
@@ -40,10 +41,11 @@ export function track(target, key) {
         dep = new Set()
         depsMap.set(key, dep)
     }
-    if (!activeEffect) return 
+    if (!activeEffect) return
+    // 将执行函数添加到dep
     dep.add(activeEffect)
     activeEffect.deps.push(dep)
-}
+} 
 export function trigger(target, key) {
     let depsMap = targetMap.get(target)
     let dep = depsMap.get(key)
@@ -55,13 +57,16 @@ export function trigger(target, key) {
         }
     }
 }
-let activeEffect;
+let activeEffect; //activeEffect记录当前函数执行状态，实例对象调用run()的时候会被设置为当前方法
 export function effect(fn, options: any = {}) {
+    // 收集用户传过来的执行函数，交给实例对象
     const _effect = new ReactiveEffect(fn, options.scheduler)
     // _effect.onStop = options.onStop -> Object.assign(_effect,options) ->extend(_effect,options)
     extend(_effect,options)
     _effect.run() //赋值activeEffect为this
+    // 使用bind，将this绑定到当前实例上。
     const runner: any = _effect.run.bind(_effect)
+    // 为了stop操作->拿到实例对象
     runner.effect = _effect
     return runner
 }
