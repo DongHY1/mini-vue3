@@ -6,6 +6,8 @@ describe("readonly",()=>{
         expect(wrapped).not.toBe(original)
         expect(isReadonly(wrapped)).toBe(true)
         expect(isReadonly(original)).toBe(false)
+        // nested object 
+        expect(isReadonly(wrapped.bar)).toBe(true)
     })
     it('调用readonly set时,发出警告',()=>{
       // mock 模拟控制台报错
