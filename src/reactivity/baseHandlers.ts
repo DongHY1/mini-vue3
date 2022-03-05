@@ -1,10 +1,11 @@
 import { track, trigger } from "./effect"
 import { reactive, ReactiveFlags, readonly } from "./reactive"
-import { isObject } from "../shared"
+import { extend, isObject } from "../shared"
 const reactiveGet = createGetter() //缓存
 const reactiveSet = createSetter()
 const readonlyGet = createGetter(true) 
-function createGetter(isReadonly=false){
+const shallowReadonlyGet = createGetter(true,true)
+function createGetter(isReadonly=false,shallow=false){
     return function get(target,key){
         if(key===ReactiveFlags.IS_REACTIVE){
             return !isReadonly
@@ -12,6 +13,9 @@ function createGetter(isReadonly=false){
             return isReadonly
         }
         const res = Reflect.get(target,key)
+        if(shallow){
+            return res
+        }
         // nested object 的深度遍历
         if(isObject(res)){
             return isReadonly? readonly(res):reactive(res)
@@ -40,3 +44,6 @@ export const readonlyHandler = {
         return true
     }
 }
+export const shallowReadonlyHandler = extend({},readonlyHandler,{
+    get:shallowReadonlyGet
+}) 
