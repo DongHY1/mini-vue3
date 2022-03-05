@@ -1,4 +1,4 @@
-import {readonly,isReadonly} from '../reactive'
+import {readonly,isReadonly,isProxy} from '../reactive'
 describe("readonly",()=>{
     it('should make nested values readonly', () => {
         const original = { foo: 1, bar: { baz: 2 } }
@@ -8,6 +8,7 @@ describe("readonly",()=>{
         expect(isReadonly(original)).toBe(false)
         // nested object 
         expect(isReadonly(wrapped.bar)).toBe(true)
+        expect(isProxy(wrapped)).toBe(true)
     })
     it('调用readonly set时,发出警告',()=>{
       // mock 模拟控制台报错

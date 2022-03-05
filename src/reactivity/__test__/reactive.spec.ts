@@ -1,5 +1,5 @@
 // reactive处理逻辑
-import {reactive,isReactive} from '../reactive'
+import {reactive,isReactive,isProxy} from '../reactive'
 describe('reactive', () => {
     it('Object',()=>{
         const original = { foo: 1 }
@@ -14,6 +14,7 @@ describe('reactive', () => {
         // isReactive 判断对象是否为响应式
         expect(isReactive(observed)).toBe(true)
         expect(isReactive(original)).toBe(false)
+        expect(isProxy(observed)).toBe(true)
     })
     test('nested object',()=>{
         const original = {
@@ -26,6 +27,5 @@ describe('reactive', () => {
         expect(isReactive(observed.nested)).toBe(true)
         expect(isReactive(observed.array)).toBe(true)
         expect(isReactive(observed.array[0])).toBe(true)
-
     })
 });
