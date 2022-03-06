@@ -39,8 +39,9 @@ function clearEffect(effect) {
 }
 const targetMap = new Map()
 export function track(target, key) {
-    if (!activeEffect) return
-    if(!shouldTrack) return
+    // if (!activeEffect) return
+    // if(!shouldTrack) return
+    if(!isTracking()) return
     // 使用Set数据结构，防止重复传入相同的执行函数
     let depsMap = targetMap.get(target)
     if (!depsMap) {
@@ -53,13 +54,23 @@ export function track(target, key) {
         depsMap.set(key, dep)
     }
     // 将执行函数添加到dep
+     trackEffects(dep)
+}
+export function isTracking(){
+    return shouldTrack && activeEffect!==undefined
+}
+// 抽离函数 逻辑服用 ref
+export function trackEffects(dep){
     if(dep.has(activeEffect)) return
     dep.add(activeEffect)
     activeEffect.deps.push(dep)
-} 
+}
 export function trigger(target, key) {
     let depsMap = targetMap.get(target)
     let dep = depsMap.get(key)
+    triggerEffects(dep)
+}
+export function triggerEffects(dep){
     for (const effect of dep) {
         if (effect.scheduler) {
             effect.scheduler()
@@ -68,7 +79,6 @@ export function trigger(target, key) {
         }
     }
 }
-
 export function effect(fn, options: any = {}) {
     // 收集用户传过来的执行函数，交给实例对象
     const _effect = new ReactiveEffect(fn, options.scheduler)
