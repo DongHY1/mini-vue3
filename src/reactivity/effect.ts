@@ -1,7 +1,7 @@
 import {extend} from '../shared'
 let activeEffect; //activeEffect记录当前函数执行状态，实例对象调用run()的时候会被设置为当前方法
 let shouldTrack;//如果调用了stop(),shouldTrack =false
-class ReactiveEffect {
+export class ReactiveEffect {
     private _fn: any
     deps = []
     active = true //频繁清空影响性能，采用active来判断是否已经清空过
