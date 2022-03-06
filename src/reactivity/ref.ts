@@ -5,6 +5,7 @@ class refImpl {
     private _value: any
     public dep
     private _rawValue:any
+    public __v_isRef=true
     constructor(value) {
         this._rawValue = value
         // nested object 判断传入的是否是对象
@@ -30,4 +31,10 @@ function convert(value){
 }
 export function ref(value) {
     return new refImpl(value)
+}
+export function isRef(ref){
+    return !!ref.__v_isRef
+}
+export function unRef(ref){
+  return isRef(ref)? ref.value:ref
 }
